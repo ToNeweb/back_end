@@ -1,0 +1,37 @@
+User Sec:
+userId uint64
+password string(hash)
+email string
+address string
+profile Profile
+
+
+user profile:
+username string
+profileImage string
+
+
+Video:
+videoId autoIncreasment uint64
+senderId USerSec.userId
+Desc string
+videoLink string
+thumb string
+likeNum uint64
+commentNum uint64
+
+
+Like:
+videoId
+userId
+
+comments
+videoId
+userId
+commentStr string
+
+
+jwt
+ID
+refreshToken
+expirationDate
