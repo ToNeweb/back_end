@@ -103,7 +103,7 @@ func (usq *UserSecQuery) QueryVideoId() *VideosQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(usersec.Table, usersec.FieldID, selector),
 			sqlgraph.To(videos.Table, videos.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, usersec.VideoIdTable, usersec.VideoIdPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, usersec.VideoIdTable, usersec.VideoIdColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(usq.driver.Dialect(), step)
 		return fromU, nil
@@ -574,63 +574,33 @@ func (usq *UserSecQuery) loadProfile(ctx context.Context, query *UserProfileQuer
 	return nil
 }
 func (usq *UserSecQuery) loadVideoId(ctx context.Context, query *VideosQuery, nodes []*UserSec, init func(*UserSec), assign func(*UserSec, *Videos)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*UserSec)
-	nids := make(map[int]map[*UserSec]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*UserSec)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
 		if init != nil {
-			init(node)
+			init(nodes[i])
 		}
 	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(usersec.VideoIdTable)
-		s.Join(joinT).On(s.C(videos.FieldID), joinT.C(usersec.VideoIdPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(usersec.VideoIdPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(usersec.VideoIdPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*UserSec]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*Videos](ctx, query, qr, query.inters)
+	query.withFKs = true
+	query.Where(predicate.Videos(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(usersec.VideoIdColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
+		fk := n.user_sec_video_id
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_sec_video_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected "videoId" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "user_sec_video_id" returned %v for node %v`, *fk, n.ID)
 		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
+		assign(node, n)
 	}
 	return nil
 }

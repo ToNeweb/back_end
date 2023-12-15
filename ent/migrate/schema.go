@@ -71,35 +71,19 @@ var (
 		{Name: "thumb", Type: field.TypeString},
 		{Name: "like_num", Type: field.TypeUint64},
 		{Name: "comment_num", Type: field.TypeUint64},
+		{Name: "user_sec_video_id", Type: field.TypeInt, Nullable: true},
 	}
 	// VideosTable holds the schema information for the "videos" table.
 	VideosTable = &schema.Table{
 		Name:       "videos",
 		Columns:    VideosColumns,
 		PrimaryKey: []*schema.Column{VideosColumns[0]},
-	}
-	// UserSecVideoIdColumns holds the columns for the "user_sec_videoId" table.
-	UserSecVideoIdColumns = []*schema.Column{
-		{Name: "user_sec_id", Type: field.TypeInt},
-		{Name: "videos_id", Type: field.TypeInt},
-	}
-	// UserSecVideoIdTable holds the schema information for the "user_sec_videoId" table.
-	UserSecVideoIdTable = &schema.Table{
-		Name:       "user_sec_videoId",
-		Columns:    UserSecVideoIdColumns,
-		PrimaryKey: []*schema.Column{UserSecVideoIdColumns[0], UserSecVideoIdColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "user_sec_videoId_user_sec_id",
-				Columns:    []*schema.Column{UserSecVideoIdColumns[0]},
+				Symbol:     "videos_user_secs_videoId",
+				Columns:    []*schema.Column{VideosColumns[6]},
 				RefColumns: []*schema.Column{UserSecsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "user_sec_videoId_videos_id",
-				Columns:    []*schema.Column{UserSecVideoIdColumns[1]},
-				RefColumns: []*schema.Column{VideosColumns[0]},
-				OnDelete:   schema.Cascade,
+				OnDelete:   schema.SetNull,
 			},
 		},
 	}
@@ -210,7 +194,6 @@ var (
 		UserProfilesTable,
 		UserSecsTable,
 		VideosTable,
-		UserSecVideoIdTable,
 		UserSecCommentIdTable,
 		UserSecLikeIdTable,
 		VideosLikeIdTable,
@@ -220,8 +203,7 @@ var (
 
 func init() {
 	UserSecsTable.ForeignKeys[0].RefTable = UserProfilesTable
-	UserSecVideoIdTable.ForeignKeys[0].RefTable = UserSecsTable
-	UserSecVideoIdTable.ForeignKeys[1].RefTable = VideosTable
+	VideosTable.ForeignKeys[0].RefTable = UserSecsTable
 	UserSecCommentIdTable.ForeignKeys[0].RefTable = UserSecsTable
 	UserSecCommentIdTable.ForeignKeys[1].RefTable = CommentsTable
 	UserSecLikeIdTable.ForeignKeys[0].RefTable = UserSecsTable

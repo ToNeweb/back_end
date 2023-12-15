@@ -271,10 +271,10 @@ func (usu *UserSecUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if usu.mutation.VideoIdCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   usersec.VideoIdTable,
-			Columns: usersec.VideoIdPrimaryKey,
+			Columns: []string{usersec.VideoIdColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(videos.FieldID, field.TypeInt),
@@ -284,10 +284,10 @@ func (usu *UserSecUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := usu.mutation.RemovedVideoIdIDs(); len(nodes) > 0 && !usu.mutation.VideoIdCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   usersec.VideoIdTable,
-			Columns: usersec.VideoIdPrimaryKey,
+			Columns: []string{usersec.VideoIdColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(videos.FieldID, field.TypeInt),
@@ -300,10 +300,10 @@ func (usu *UserSecUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := usu.mutation.VideoIdIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   usersec.VideoIdTable,
-			Columns: usersec.VideoIdPrimaryKey,
+			Columns: []string{usersec.VideoIdColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(videos.FieldID, field.TypeInt),
@@ -694,10 +694,10 @@ func (usuo *UserSecUpdateOne) sqlSave(ctx context.Context) (_node *UserSec, err 
 	}
 	if usuo.mutation.VideoIdCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   usersec.VideoIdTable,
-			Columns: usersec.VideoIdPrimaryKey,
+			Columns: []string{usersec.VideoIdColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(videos.FieldID, field.TypeInt),
@@ -707,10 +707,10 @@ func (usuo *UserSecUpdateOne) sqlSave(ctx context.Context) (_node *UserSec, err 
 	}
 	if nodes := usuo.mutation.RemovedVideoIdIDs(); len(nodes) > 0 && !usuo.mutation.VideoIdCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   usersec.VideoIdTable,
-			Columns: usersec.VideoIdPrimaryKey,
+			Columns: []string{usersec.VideoIdColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(videos.FieldID, field.TypeInt),
@@ -723,10 +723,10 @@ func (usuo *UserSecUpdateOne) sqlSave(ctx context.Context) (_node *UserSec, err 
 	}
 	if nodes := usuo.mutation.VideoIdIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   usersec.VideoIdTable,
-			Columns: usersec.VideoIdPrimaryKey,
+			Columns: []string{usersec.VideoIdColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(videos.FieldID, field.TypeInt),

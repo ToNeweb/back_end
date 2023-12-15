@@ -52,19 +52,23 @@ func (vc *VideosCreate) SetCommentNum(u uint64) *VideosCreate {
 	return vc
 }
 
-// AddUserIDs adds the "user" edge to the UserSec entity by IDs.
-func (vc *VideosCreate) AddUserIDs(ids ...int) *VideosCreate {
-	vc.mutation.AddUserIDs(ids...)
+// SetUserID sets the "user" edge to the UserSec entity by ID.
+func (vc *VideosCreate) SetUserID(id int) *VideosCreate {
+	vc.mutation.SetUserID(id)
 	return vc
 }
 
-// AddUser adds the "user" edges to the UserSec entity.
-func (vc *VideosCreate) AddUser(u ...*UserSec) *VideosCreate {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// SetNillableUserID sets the "user" edge to the UserSec entity by ID if the given value is not nil.
+func (vc *VideosCreate) SetNillableUserID(id *int) *VideosCreate {
+	if id != nil {
+		vc = vc.SetUserID(*id)
 	}
-	return vc.AddUserIDs(ids...)
+	return vc
+}
+
+// SetUser sets the "user" edge to the UserSec entity.
+func (vc *VideosCreate) SetUser(u *UserSec) *VideosCreate {
+	return vc.SetUserID(u.ID)
 }
 
 // AddLikeIdIDs adds the "likeId" edge to the Likes entity by IDs.
@@ -194,10 +198,10 @@ func (vc *VideosCreate) createSpec() (*Videos, *sqlgraph.CreateSpec) {
 	}
 	if nodes := vc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   videos.UserTable,
-			Columns: videos.UserPrimaryKey,
+			Columns: []string{videos.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usersec.FieldID, field.TypeInt),
@@ -206,6 +210,7 @@ func (vc *VideosCreate) createSpec() (*Videos, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.user_sec_video_id = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := vc.mutation.LikeIdIDs(); len(nodes) > 0 {

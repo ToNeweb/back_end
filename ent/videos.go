@@ -4,6 +4,7 @@ package ent
 
 import (
 	"fmt"
+	"server04/ent/usersec"
 	"server04/ent/videos"
 	"strings"
 
@@ -28,14 +29,15 @@ type Videos struct {
 	CommentNum uint64 `json:"commentNum,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the VideosQuery when eager-loading is set.
-	Edges        VideosEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges             VideosEdges `json:"edges"`
+	user_sec_video_id *int
+	selectValues      sql.SelectValues
 }
 
 // VideosEdges holds the relations/edges for other nodes in the graph.
 type VideosEdges struct {
 	// User holds the value of the user edge.
-	User []*UserSec `json:"user,omitempty"`
+	User *UserSec `json:"user,omitempty"`
 	// LikeId holds the value of the likeId edge.
 	LikeId []*Likes `json:"likeId,omitempty"`
 	// CommentId holds the value of the commentId edge.
@@ -46,9 +48,13 @@ type VideosEdges struct {
 }
 
 // UserOrErr returns the User value or an error if the edge
-// was not loaded in eager-loading.
-func (e VideosEdges) UserOrErr() ([]*UserSec, error) {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e VideosEdges) UserOrErr() (*UserSec, error) {
 	if e.loadedTypes[0] {
+		if e.User == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: usersec.Label}
+		}
 		return e.User, nil
 	}
 	return nil, &NotLoadedError{edge: "user"}
@@ -81,6 +87,8 @@ func (*Videos) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case videos.FieldDesc, videos.FieldVideoLink, videos.FieldThumb:
 			values[i] = new(sql.NullString)
+		case videos.ForeignKeys[0]: // user_sec_video_id
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -131,6 +139,13 @@ func (v *Videos) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field commentNum", values[i])
 			} else if value.Valid {
 				v.CommentNum = uint64(value.Int64)
+			}
+		case videos.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field user_sec_video_id", value)
+			} else if value.Valid {
+				v.user_sec_video_id = new(int)
+				*v.user_sec_video_id = int(value.Int64)
 			}
 		default:
 			v.selectValues.Set(columns[i], values[i])

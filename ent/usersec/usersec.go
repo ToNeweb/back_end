@@ -35,11 +35,13 @@ const (
 	ProfileInverseTable = "user_profiles"
 	// ProfileColumn is the table column denoting the profile relation/edge.
 	ProfileColumn = "user_profile_user_secure"
-	// VideoIdTable is the table that holds the videoId relation/edge. The primary key declared below.
-	VideoIdTable = "user_sec_videoId"
+	// VideoIdTable is the table that holds the videoId relation/edge.
+	VideoIdTable = "videos"
 	// VideoIdInverseTable is the table name for the Videos entity.
 	// It exists in this package in order to avoid circular dependency with the "videos" package.
 	VideoIdInverseTable = "videos"
+	// VideoIdColumn is the table column denoting the videoId relation/edge.
+	VideoIdColumn = "user_sec_video_id"
 	// CommentIdTable is the table that holds the commentId relation/edge. The primary key declared below.
 	CommentIdTable = "user_sec_commentId"
 	// CommentIdInverseTable is the table name for the Comments entity.
@@ -67,9 +69,6 @@ var ForeignKeys = []string{
 }
 
 var (
-	// VideoIdPrimaryKey and VideoIdColumn2 are the table columns denoting the
-	// primary key for the videoId relation (M2M).
-	VideoIdPrimaryKey = []string{"user_sec_id", "videos_id"}
 	// CommentIdPrimaryKey and CommentIdColumn2 are the table columns denoting the
 	// primary key for the commentId relation (M2M).
 	CommentIdPrimaryKey = []string{"user_sec_id", "comments_id"}
@@ -180,7 +179,7 @@ func newVideoIdStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(VideoIdInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, VideoIdTable, VideoIdPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.O2M, false, VideoIdTable, VideoIdColumn),
 	)
 }
 func newCommentIdStep() *sqlgraph.Step {

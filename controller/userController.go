@@ -36,9 +36,9 @@ var secretKey = []byte("eeSecretYouShouldHide")
 
 func generateJWT(userId int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"foo":    "bar",
-		"userId": userId,
-		"exp":    time.Now().Add(10 * time.Minute),
+		"foo":     "bar",
+		"user_id": userId,
+		"exp":     time.Now().Add(10 * time.Minute),
 	})
 
 	// claims := token.Claims.(jwt.MapClaims)

@@ -292,7 +292,7 @@ func HasVideoId() predicate.UserSec {
 	return predicate.UserSec(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, VideoIdTable, VideoIdPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, VideoIdTable, VideoIdColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

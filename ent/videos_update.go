@@ -74,19 +74,23 @@ func (vu *VideosUpdate) AddCommentNum(u int64) *VideosUpdate {
 	return vu
 }
 
-// AddUserIDs adds the "user" edge to the UserSec entity by IDs.
-func (vu *VideosUpdate) AddUserIDs(ids ...int) *VideosUpdate {
-	vu.mutation.AddUserIDs(ids...)
+// SetUserID sets the "user" edge to the UserSec entity by ID.
+func (vu *VideosUpdate) SetUserID(id int) *VideosUpdate {
+	vu.mutation.SetUserID(id)
 	return vu
 }
 
-// AddUser adds the "user" edges to the UserSec entity.
-func (vu *VideosUpdate) AddUser(u ...*UserSec) *VideosUpdate {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// SetNillableUserID sets the "user" edge to the UserSec entity by ID if the given value is not nil.
+func (vu *VideosUpdate) SetNillableUserID(id *int) *VideosUpdate {
+	if id != nil {
+		vu = vu.SetUserID(*id)
 	}
-	return vu.AddUserIDs(ids...)
+	return vu
+}
+
+// SetUser sets the "user" edge to the UserSec entity.
+func (vu *VideosUpdate) SetUser(u *UserSec) *VideosUpdate {
+	return vu.SetUserID(u.ID)
 }
 
 // AddLikeIdIDs adds the "likeId" edge to the Likes entity by IDs.
@@ -124,25 +128,10 @@ func (vu *VideosUpdate) Mutation() *VideosMutation {
 	return vu.mutation
 }
 
-// ClearUser clears all "user" edges to the UserSec entity.
+// ClearUser clears the "user" edge to the UserSec entity.
 func (vu *VideosUpdate) ClearUser() *VideosUpdate {
 	vu.mutation.ClearUser()
 	return vu
-}
-
-// RemoveUserIDs removes the "user" edge to UserSec entities by IDs.
-func (vu *VideosUpdate) RemoveUserIDs(ids ...int) *VideosUpdate {
-	vu.mutation.RemoveUserIDs(ids...)
-	return vu
-}
-
-// RemoveUser removes "user" edges to UserSec entities.
-func (vu *VideosUpdate) RemoveUser(u ...*UserSec) *VideosUpdate {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return vu.RemoveUserIDs(ids...)
 }
 
 // ClearLikeId clears all "likeId" edges to the Likes entity.
@@ -246,39 +235,23 @@ func (vu *VideosUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if vu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   videos.UserTable,
-			Columns: videos.UserPrimaryKey,
+			Columns: []string{videos.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usersec.FieldID, field.TypeInt),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := vu.mutation.RemovedUserIDs(); len(nodes) > 0 && !vu.mutation.UserCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   videos.UserTable,
-			Columns: videos.UserPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersec.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := vu.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   videos.UserTable,
-			Columns: videos.UserPrimaryKey,
+			Columns: []string{videos.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usersec.FieldID, field.TypeInt),
@@ -443,19 +416,23 @@ func (vuo *VideosUpdateOne) AddCommentNum(u int64) *VideosUpdateOne {
 	return vuo
 }
 
-// AddUserIDs adds the "user" edge to the UserSec entity by IDs.
-func (vuo *VideosUpdateOne) AddUserIDs(ids ...int) *VideosUpdateOne {
-	vuo.mutation.AddUserIDs(ids...)
+// SetUserID sets the "user" edge to the UserSec entity by ID.
+func (vuo *VideosUpdateOne) SetUserID(id int) *VideosUpdateOne {
+	vuo.mutation.SetUserID(id)
 	return vuo
 }
 
-// AddUser adds the "user" edges to the UserSec entity.
-func (vuo *VideosUpdateOne) AddUser(u ...*UserSec) *VideosUpdateOne {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// SetNillableUserID sets the "user" edge to the UserSec entity by ID if the given value is not nil.
+func (vuo *VideosUpdateOne) SetNillableUserID(id *int) *VideosUpdateOne {
+	if id != nil {
+		vuo = vuo.SetUserID(*id)
 	}
-	return vuo.AddUserIDs(ids...)
+	return vuo
+}
+
+// SetUser sets the "user" edge to the UserSec entity.
+func (vuo *VideosUpdateOne) SetUser(u *UserSec) *VideosUpdateOne {
+	return vuo.SetUserID(u.ID)
 }
 
 // AddLikeIdIDs adds the "likeId" edge to the Likes entity by IDs.
@@ -493,25 +470,10 @@ func (vuo *VideosUpdateOne) Mutation() *VideosMutation {
 	return vuo.mutation
 }
 
-// ClearUser clears all "user" edges to the UserSec entity.
+// ClearUser clears the "user" edge to the UserSec entity.
 func (vuo *VideosUpdateOne) ClearUser() *VideosUpdateOne {
 	vuo.mutation.ClearUser()
 	return vuo
-}
-
-// RemoveUserIDs removes the "user" edge to UserSec entities by IDs.
-func (vuo *VideosUpdateOne) RemoveUserIDs(ids ...int) *VideosUpdateOne {
-	vuo.mutation.RemoveUserIDs(ids...)
-	return vuo
-}
-
-// RemoveUser removes "user" edges to UserSec entities.
-func (vuo *VideosUpdateOne) RemoveUser(u ...*UserSec) *VideosUpdateOne {
-	ids := make([]int, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return vuo.RemoveUserIDs(ids...)
 }
 
 // ClearLikeId clears all "likeId" edges to the Likes entity.
@@ -645,39 +607,23 @@ func (vuo *VideosUpdateOne) sqlSave(ctx context.Context) (_node *Videos, err err
 	}
 	if vuo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   videos.UserTable,
-			Columns: videos.UserPrimaryKey,
+			Columns: []string{videos.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usersec.FieldID, field.TypeInt),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := vuo.mutation.RemovedUserIDs(); len(nodes) > 0 && !vuo.mutation.UserCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   videos.UserTable,
-			Columns: videos.UserPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(usersec.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := vuo.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   videos.UserTable,
-			Columns: videos.UserPrimaryKey,
+			Columns: []string{videos.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usersec.FieldID, field.TypeInt),

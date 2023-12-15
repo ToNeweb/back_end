@@ -2215,8 +2215,7 @@ type VideosMutation struct {
 	commentNum       *uint64
 	addcommentNum    *int64
 	clearedFields    map[string]struct{}
-	user             map[int]struct{}
-	removeduser      map[int]struct{}
+	user             *int
 	cleareduser      bool
 	likeId           map[int]struct{}
 	removedlikeId    map[int]struct{}
@@ -2547,14 +2546,9 @@ func (m *VideosMutation) ResetCommentNum() {
 	m.addcommentNum = nil
 }
 
-// AddUserIDs adds the "user" edge to the UserSec entity by ids.
-func (m *VideosMutation) AddUserIDs(ids ...int) {
-	if m.user == nil {
-		m.user = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.user[ids[i]] = struct{}{}
-	}
+// SetUserID sets the "user" edge to the UserSec entity by id.
+func (m *VideosMutation) SetUserID(id int) {
+	m.user = &id
 }
 
 // ClearUser clears the "user" edge to the UserSec entity.
@@ -2567,29 +2561,20 @@ func (m *VideosMutation) UserCleared() bool {
 	return m.cleareduser
 }
 
-// RemoveUserIDs removes the "user" edge to the UserSec entity by IDs.
-func (m *VideosMutation) RemoveUserIDs(ids ...int) {
-	if m.removeduser == nil {
-		m.removeduser = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.user, ids[i])
-		m.removeduser[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedUser returns the removed IDs of the "user" edge to the UserSec entity.
-func (m *VideosMutation) RemovedUserIDs() (ids []int) {
-	for id := range m.removeduser {
-		ids = append(ids, id)
+// UserID returns the "user" edge ID in the mutation.
+func (m *VideosMutation) UserID() (id int, exists bool) {
+	if m.user != nil {
+		return *m.user, true
 	}
 	return
 }
 
 // UserIDs returns the "user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UserID instead. It exists only for internal usage by the builders.
 func (m *VideosMutation) UserIDs() (ids []int) {
-	for id := range m.user {
-		ids = append(ids, id)
+	if id := m.user; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -2598,7 +2583,6 @@ func (m *VideosMutation) UserIDs() (ids []int) {
 func (m *VideosMutation) ResetUser() {
 	m.user = nil
 	m.cleareduser = false
-	m.removeduser = nil
 }
 
 // AddLikeIdIDs adds the "likeId" edge to the Likes entity by ids.
@@ -2955,11 +2939,9 @@ func (m *VideosMutation) AddedEdges() []string {
 func (m *VideosMutation) AddedIDs(name string) []ent.Value {
 	switch name {
 	case videos.EdgeUser:
-		ids := make([]ent.Value, 0, len(m.user))
-		for id := range m.user {
-			ids = append(ids, id)
+		if id := m.user; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	case videos.EdgeLikeId:
 		ids := make([]ent.Value, 0, len(m.likeId))
 		for id := range m.likeId {
@@ -2979,9 +2961,6 @@ func (m *VideosMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *VideosMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 3)
-	if m.removeduser != nil {
-		edges = append(edges, videos.EdgeUser)
-	}
 	if m.removedlikeId != nil {
 		edges = append(edges, videos.EdgeLikeId)
 	}
@@ -2995,12 +2974,6 @@ func (m *VideosMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *VideosMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case videos.EdgeUser:
-		ids := make([]ent.Value, 0, len(m.removeduser))
-		for id := range m.removeduser {
-			ids = append(ids, id)
-		}
-		return ids
 	case videos.EdgeLikeId:
 		ids := make([]ent.Value, 0, len(m.removedlikeId))
 		for id := range m.removedlikeId {
@@ -3050,6 +3023,9 @@ func (m *VideosMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *VideosMutation) ClearEdge(name string) error {
 	switch name {
+	case videos.EdgeUser:
+		m.ClearUser()
+		return nil
 	}
 	return fmt.Errorf("unknown Videos unique edge %s", name)
 }

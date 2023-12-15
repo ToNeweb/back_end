@@ -30,11 +30,13 @@ const (
 	EdgeCommentId = "commentId"
 	// Table holds the table name of the videos in the database.
 	Table = "videos"
-	// UserTable is the table that holds the user relation/edge. The primary key declared below.
-	UserTable = "user_sec_videoId"
+	// UserTable is the table that holds the user relation/edge.
+	UserTable = "videos"
 	// UserInverseTable is the table name for the UserSec entity.
 	// It exists in this package in order to avoid circular dependency with the "usersec" package.
 	UserInverseTable = "user_secs"
+	// UserColumn is the table column denoting the user relation/edge.
+	UserColumn = "user_sec_video_id"
 	// LikeIdTable is the table that holds the likeId relation/edge. The primary key declared below.
 	LikeIdTable = "videos_likeId"
 	// LikeIdInverseTable is the table name for the Likes entity.
@@ -57,10 +59,13 @@ var Columns = []string{
 	FieldCommentNum,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "videos"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"user_sec_video_id",
+}
+
 var (
-	// UserPrimaryKey and UserColumn2 are the table columns denoting the
-	// primary key for the user relation (M2M).
-	UserPrimaryKey = []string{"user_sec_id", "videos_id"}
 	// LikeIdPrimaryKey and LikeIdColumn2 are the table columns denoting the
 	// primary key for the likeId relation (M2M).
 	LikeIdPrimaryKey = []string{"videos_id", "likes_id"}
@@ -73,6 +78,11 @@ var (
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -112,17 +122,10 @@ func ByCommentNum(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCommentNum, opts...).ToFunc()
 }
 
-// ByUserCount orders the results by user count.
-func ByUserCount(opts ...sql.OrderTermOption) OrderOption {
+// ByUserField orders the results by user field.
+func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUserStep(), opts...)
-	}
-}
-
-// ByUser orders the results by user terms.
-func ByUser(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -157,7 +160,7 @@ func newUserStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, UserTable, UserPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
 	)
 }
 func newLikeIdStep() *sqlgraph.Step {

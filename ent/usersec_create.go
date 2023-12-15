@@ -222,10 +222,10 @@ func (usc *UserSecCreate) createSpec() (*UserSec, *sqlgraph.CreateSpec) {
 	}
 	if nodes := usc.mutation.VideoIdIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   usersec.VideoIdTable,
-			Columns: usersec.VideoIdPrimaryKey,
+			Columns: []string{usersec.VideoIdColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(videos.FieldID, field.TypeInt),

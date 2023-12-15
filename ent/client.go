@@ -373,6 +373,11 @@ func (c *CommentsClient) QueryUserId(co *Comments) *UserSecQuery {
 	return query
 }
 
+///sep
+func (c *UserSecClient) GetByEmail(ctx context.Context, email string) (*UserSec, error) {
+	return c.Query().Where(usersec.Email(email)).Only(ctx)
+}
+
 // Hooks returns the client hooks.
 func (c *CommentsClient) Hooks() []Hook {
 	return c.hooks.Comments
@@ -811,12 +816,6 @@ func (c *UserSecClient) Get(ctx context.Context, id int) (*UserSec, error) {
 	return c.Query().Where(usersec.ID(id)).Only(ctx)
 }
 
-///sep
-func (c *UserSecClient) GetByEmail(ctx context.Context, email string) (*UserSec, error) {
-	return c.Query().Where(usersec.Email(email)).Only(ctx)
-}
-
-
 // GetX is like Get, but panics if an error occurs.
 func (c *UserSecClient) GetX(ctx context.Context, id int) *UserSec {
 	obj, err := c.Get(ctx, id)
@@ -850,7 +849,7 @@ func (c *UserSecClient) QueryVideoId(us *UserSec) *VideosQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(usersec.Table, usersec.FieldID, id),
 			sqlgraph.To(videos.Table, videos.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, usersec.VideoIdTable, usersec.VideoIdPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, usersec.VideoIdTable, usersec.VideoIdColumn),
 		)
 		fromV = sqlgraph.Neighbors(us.driver.Dialect(), step)
 		return fromV, nil
@@ -1031,7 +1030,7 @@ func (c *VideosClient) QueryUser(v *Videos) *UserSecQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(videos.Table, videos.FieldID, id),
 			sqlgraph.To(usersec.Table, usersec.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, videos.UserTable, videos.UserPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, videos.UserTable, videos.UserColumn),
 		)
 		fromV = sqlgraph.Neighbors(v.driver.Dialect(), step)
 		return fromV, nil

@@ -25,7 +25,7 @@ func (Videos) Fields() []ent.Field {
 // Edges of the Videos.
 func (Videos) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("user", UserSec.Type).Ref("videoId"),
+		edge.From("user", UserSec.Type).Ref("videoId").Unique(),
 		edge.To("likeId", Likes.Type),
 		edge.To("commentId", Comments.Type),
 	}
