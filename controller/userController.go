@@ -3,10 +3,11 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"server04/ent"
 	"server04/utils"
+	"strings"
+	"time"
 
 	"server04/service"
 
@@ -34,10 +35,10 @@ func UserCreateController(w http.ResponseWriter, r *http.Request) {
 var secretKey = []byte("eeSecretYouShouldHide")
 
 func generateJWT(userId int) (string, error) {
-	//token := jwt.New(jwt.SigningMethodEdDSA)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"foo":    "bar",
 		"userId": userId,
+		"exp":    time.Now().Add(10 * time.Minute),
 	})
 
 	// claims := token.Claims.(jwt.MapClaims)
@@ -75,24 +76,31 @@ func UserLoginController(w http.ResponseWriter, r *http.Request) {
 }
 
 func UserValidateController(w http.ResponseWriter, r *http.Request) {
-	tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJ1c2VyIjoic2VwZWhybW5wIn0.Xam-9R5pSPWhilCfVHt_pYE_WnAoeGNFvjR0bhm-rpY"
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	//var tokenString string //:= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJ1c2VyIjoic2VwZWhybW5wIn0.Xam-9R5pSPWhilCfVHt_pYE_WnAoeGNFvjR0bhm-rpY"
+	reqToken := r.Header.Get("Authorization")
+	splitToken := strings.Split(reqToken, "Bearer ")
+	reqToken = splitToken[1]
+	token, _ := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("Unexpected signing method: %v", nil)
 		}
-
 		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 		return secretKey, nil
 	})
-	if err != nil {
-		log.Fatal(err)
-	}
 	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok {
-		fmt.Println(claims["foo"])
-	} else {
-		fmt.Println(err, "wtf")
+	if !ok {
+		utils.Return(w, true, http.StatusConflict, fmt.Errorf("jwt parsed wrong"), nil)
 	}
-	utils.Return(w, true, http.StatusOK, nil, claims["user"])
+	utils.Return(w, true, http.StatusOK, nil, claims["exp"])
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// claims, ok := token.Claims.(jwt.MapClaims)
+	// if ok {
+	// 	fmt.Println(claims["foo"])
+	// } else {
+	// 	fmt.Println(err, "wtf")
+	// }
+	// utils.Return(w, true, http.StatusOK, nil, claims["userId"])
 }
