@@ -377,6 +377,25 @@ func (c *CommentsClient) QueryUserId(co *Comments) *UserSecQuery {
 func (c *UserSecClient) GetByEmail(ctx context.Context, email string) (*UserSec, error) {
 	return c.Query().Where(usersec.Email(email)).Only(ctx)
 }
+///sep
+func (c *VideosClient) GetBatch(ctx context.Context, minLast int, numberRequested int) ([]*Videos, error){
+	numberOfVideos,_ :=  c.Query().Select().Count(ctx)
+	startingPoint:= numberOfVideos - (minLast+numberRequested-1)
+	if startingPoint<0{
+		startingPoint = 0
+	}
+	endingPoint:= startingPoint + numberRequested - 1
+	if endingPoint > numberOfVideos{
+		endingPoint = numberOfVideos 
+	}
+	fmt.Println(startingPoint , endingPoint)
+	 
+	return c.Query().Where(func(s *sql.Selector) {
+        s.Where(sql.ExprP(fmt.Sprintf("ID >= %d AND ID < %d", startingPoint, endingPoint+1)))
+    }).
+    AllX(ctx),nil
+}
+
 
 // Hooks returns the client hooks.
 func (c *CommentsClient) Hooks() []Hook {

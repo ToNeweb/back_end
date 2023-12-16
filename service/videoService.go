@@ -60,9 +60,16 @@ func (r *UserOps) UserGetByEmail(email string) (*ent.UserSec, error) {
 		return user, nil
 	}
 */
-func (r *UserOps) VideoGetAll() (int, error) {
+func (r *VideosOps) VideoGetAll() (int, error) {
 
 	users, _ := r.client.Videos.Query().Select().Count(r.ctx)
 
 	return users, nil
+}
+
+func (r *VideosOps) VideoGetBatch(minLast int, numberRequested int) ([]*ent.Videos, error) {
+
+	videos, _ := r.client.Videos.GetBatch(r.ctx, minLast, numberRequested)
+
+	return videos, nil
 }

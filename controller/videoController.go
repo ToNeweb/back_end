@@ -45,3 +45,20 @@ func VideoGetController(w http.ResponseWriter, r *http.Request) {
 
 	utils.Return(w, true, http.StatusOK, nil, todo)
 }
+
+func VideoGetBatchController(w http.ResponseWriter, r *http.Request) {
+	v := r.URL.Query()
+	minLast, _ := strconv.Atoi(v["min_last"][0])
+	numberRequested, _ := strconv.Atoi(v["number_requested"][0])
+	// //vars := mux.Vars(r)
+
+	// //minLast, err := strconv.Atoi(vars["minLast"])
+	// //numberRequested, err2 := strconv.Atoi(vars["numberRequested"])
+	// //fmt.Println("sepehr")
+	// // if err != nil || err2 != nil {
+	// // 	fmt.Println("couldn't get the parameters")
+	// // }
+	videos, _ := service.NewvideosOps(r.Context()).VideoGetBatch(minLast, numberRequested)
+	//minLast int, numberRequested int
+	utils.Return(w, true, http.StatusOK, nil, videos)
+}
