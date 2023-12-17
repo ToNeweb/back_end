@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"server04/ent"
 	"server04/utils"
@@ -75,7 +76,7 @@ func UserLoginController(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UserValidateController(w http.ResponseWriter, r *http.Request) {
+func UserExpireController(w http.ResponseWriter, r *http.Request) {
 	//var tokenString string //:= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJ1c2VyIjoic2VwZWhybW5wIn0.Xam-9R5pSPWhilCfVHt_pYE_WnAoeGNFvjR0bhm-rpY"
 	reqToken := r.Header.Get("Authorization")
 	splitToken := strings.Split(reqToken, "Bearer ")
@@ -104,3 +105,45 @@ func UserValidateController(w http.ResponseWriter, r *http.Request) {
 	// }
 	// utils.Return(w, true, http.StatusOK, nil, claims["userId"])
 }
+
+func UserValidationSendController(w http.ResponseWriter, r *http.Request) {
+	var emailToValidate struct {
+		Email string `json:"email,omitempty"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&emailToValidate)
+	if err != nil {
+		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		return
+	}
+	seed := rand.NewSource(time.Now().UnixNano())
+	randomNum := rand.New(seed).Intn(900000) + 100000
+
+	fmt.Println(emailToValidate.Email, ": ", randomNum)
+	/// sendEmail(emailToValidate.Email, randomNumber)
+	service.NewUserOps(r.Context()).UserAddValidateCode(emailToValidate.Email, randomNum)
+	utils.Return(w, true, http.StatusOK, nil, emailToValidate)
+}
+
+func UserValidationCheckController(w http.ResponseWriter, r *http.Request) {
+	var emailToValidateWithCode struct {
+		Email string `json:"email,omitempty"`
+		Code  int    `json:"code,omitempty"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&emailToValidateWithCode)
+	if err != nil {
+		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		return
+	}
+	savedCode := service.NewUserOps(r.Context()).UserGetValidateCode(emailToValidateWithCode.Email) //get error too, if wasn't in here; generate another
+	if emailToValidateWithCode.Code == savedCode {
+		fmt.Println("validated")
+		/// here check if this account already exists, dont create it again
+		/// giva back a jwt
+		service.NewUserOps(r.Context()).UserCreateWithValidationEmail(emailToValidateWithCode.Email)
+	} else {
+		fmt.Println("no", savedCode, " ", emailToValidateWithCode.Code)
+	}
+
+}
+
+/// add setting password for this email that created in UserValidationCheckController

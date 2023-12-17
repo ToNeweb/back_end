@@ -7,18 +7,21 @@ import (
 
 	//_ "github.com/mattn/go-sqlite3"
 	_ "github.com/lib/pq"
+	"github.com/redis/go-redis/v9"
 )
 
 var (
-	client *ent.Client
+	client      *ent.Client
+	redisClient *redis.Client
 )
 
-func GetClient() *ent.Client {
-	return client
+func GetClients() (*ent.Client, *redis.Client) {
+	return client, redisClient
 }
 
-func SetClient(newClient *ent.Client) {
+func SetClients(newClient *ent.Client, newRedisClient *redis.Client) {
 	client = newClient
+	redisClient = newRedisClient
 }
 
 const (

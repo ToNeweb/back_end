@@ -24,11 +24,25 @@ func main() {
 	if err != nil {
 		log.Println("Fail to initialize client")
 	}
+	redisClient := config.OpenRedis("localhost:6379", "", 0)
 
+	//ctx := context.Background()
+	// err = redisClient.Set(ctx, "bike:1", "Process 134", 0).Err()
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// fmt.Println("OK")
+
+	// value, err := redisClient.Get(ctx, "bike:1").Result()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Printf("The name of the bike is %s", value)
 	// //set the client to the variable defined in package config
 	// //this will enable the client intance to be accessed anywhere through the accessor which is a function
 	// //named GetClient
-	config.SetClient(client)
+	config.SetClients(client, redisClient)
 
 	// //initiate router and register all the route
 	r := mux.NewRouter()

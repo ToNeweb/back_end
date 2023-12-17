@@ -13,9 +13,10 @@ type VideosOps struct {
 }
 
 func NewvideosOps(ctx context.Context) *VideosOps {
+	dbClient, _ := config.GetClients()
 	return &VideosOps{
 		ctx:    ctx,
-		client: config.GetClient(),
+		client: dbClient,
 	}
 }
 
