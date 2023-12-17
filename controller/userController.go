@@ -138,8 +138,14 @@ func UserValidationCheckController(w http.ResponseWriter, r *http.Request) {
 	if emailToValidateWithCode.Code == savedCode {
 		fmt.Println("validated")
 		/// here check if this account already exists, dont create it again
-		/// giva back a jwt
-		service.NewUserOps(r.Context()).UserCreateWithValidationEmail(emailToValidateWithCode.Email)
+		user, err := service.NewUserOps(r.Context()).UserGetByEmail(emailToValidateWithCode.Email)
+		if err != nil { // check for only "account does Not Exist!"
+			/// giva back a jwt
+			user, _ = service.NewUserOps(r.Context()).UserCreateWithValidationEmail(emailToValidateWithCode.Email)
+		}
+		jwtLog, _ := generateJWT(user.ID)
+		utils.Return(w, true, http.StatusOK, nil, jwtLog)
+
 	} else {
 		fmt.Println("no", savedCode, " ", emailToValidateWithCode.Code)
 	}
