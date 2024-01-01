@@ -74,3 +74,10 @@ func (r *VideosOps) VideoGetBatch(minLast int, numberRequested int) ([]*ent.Vide
 
 	return videos, nil
 }
+
+func (r *VideosOps) VideoGetSearch(searchTitelString string) ([]*ent.Videos, error) {
+
+	videos, _ := r.client.Videos.GetByVideoTitle(r.ctx, searchTitelString)
+
+	return videos, nil
+}

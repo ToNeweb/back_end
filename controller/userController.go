@@ -41,11 +41,6 @@ func generateJWT(userId int) (string, error) {
 		"user_id": userId,
 		"exp":     time.Now().Add(10 * time.Minute),
 	})
-
-	// claims := token.Claims.(jwt.MapClaims)
-	// claims["exp"] = time.Now().Add(10 * time.Minute)
-	// claims["authorized"] = true
-	// claims["user"] = "username"
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
 		fmt.Println(err)
@@ -76,7 +71,7 @@ func UserLoginController(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UserExpireController(w http.ResponseWriter, r *http.Request) {
+func UserExpireController(w http.ResponseWriter, r *http.Request) { /// currently not useable
 	//var tokenString string //:= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJ1c2VyIjoic2VwZWhybW5wIn0.Xam-9R5pSPWhilCfVHt_pYE_WnAoeGNFvjR0bhm-rpY"
 	reqToken := r.Header.Get("Authorization")
 	splitToken := strings.Split(reqToken, "Bearer ")
@@ -94,16 +89,6 @@ func UserExpireController(w http.ResponseWriter, r *http.Request) {
 		utils.Return(w, true, http.StatusConflict, fmt.Errorf("jwt parsed wrong"), nil)
 	}
 	utils.Return(w, true, http.StatusOK, nil, claims["exp"])
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// claims, ok := token.Claims.(jwt.MapClaims)
-	// if ok {
-	// 	fmt.Println(claims["foo"])
-	// } else {
-	// 	fmt.Println(err, "wtf")
-	// }
-	// utils.Return(w, true, http.StatusOK, nil, claims["userId"])
 }
 
 func UserValidationSendController(w http.ResponseWriter, r *http.Request) {
@@ -116,7 +101,7 @@ func UserValidationSendController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	seed := rand.NewSource(time.Now().UnixNano())
-	randomNum := rand.New(seed).Intn(900000) + 100000
+	randomNum := rand.New(seed).Intn(90000) + 10000
 
 	fmt.Println(emailToValidate.Email, ": ", randomNum)
 	/// sendEmail(emailToValidate.Email, randomNumber)

@@ -395,6 +395,13 @@ func (c *VideosClient) GetBatch(ctx context.Context, minLast int, numberRequeste
     }).
     AllX(ctx),nil
 }
+///sep
+func (c *VideosClient) GetByVideoTitle(ctx context.Context, title string) ([]*Videos, error) {
+	return c.Query().Where(func(s *sql.Selector) {
+        s.Where(sql.ExprP(fmt.Sprintf("Desc= %s",  title)))
+    }).
+    AllX(ctx),nil
+}
 
 
 // Hooks returns the client hooks.
