@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log"
 	"server04/config"
 	"server04/ent"
 	"server04/ent/usersec"
@@ -80,4 +81,15 @@ func (r *VideosOps) VideoGetSearch(searchTitelString string) ([]*ent.Videos, err
 	videos, _ := r.client.Videos.GetByVideoTitle(r.ctx, searchTitelString)
 
 	return videos, nil
+}
+
+func (r *VideosOps) AddVideoLikeIfVideoDoesNotHaveLikeFromUser(userId int, videoId int) bool {
+	video, _ := r.client.Videos.Get(r.ctx, videoId)
+	yes, err := r.client.Videos.QueryLikeId(video).QueryUser().Where(usersec.ID(userId)).Count(r.ctx)
+	log.Println(yes, err)
+	if yes > 0 {
+		return true
+	}
+	r.client.Videos.Update().AddLikeNum(int64(video.LikeNum) + 1).Save(r.ctx)
+	return false
 }

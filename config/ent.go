@@ -48,7 +48,7 @@ func NewEntClient() (*ent.Client, error) {
 	// }))
 	////option 1
 	//psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+	"password=%s dbname=%s sslmode=disable",host, port, user, password, dbname)
-	client, err := ent.Open("postgres", "dbname=video_sharing  sslmode=disable")
+	client, err := ent.Open("postgres", "dbname=videosharing2  sslmode=disable")
 	////option 2
 	//client, err := ent.Open("postgres", "file:ent?mode=memory&cache=shared&_fk=1")
 	if err != nil {

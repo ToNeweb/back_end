@@ -29,12 +29,6 @@ func (lu *LikesUpdate) Where(ps ...predicate.Likes) *LikesUpdate {
 	return lu
 }
 
-// SetCommentStr sets the "commentStr" field.
-func (lu *LikesUpdate) SetCommentStr(s string) *LikesUpdate {
-	lu.mutation.SetCommentStr(s)
-	return lu
-}
-
 // AddVideoIDs adds the "videos" edge to the Videos entity by IDs.
 func (lu *LikesUpdate) AddVideoIDs(ids ...int) *LikesUpdate {
 	lu.mutation.AddVideoIDs(ids...)
@@ -148,9 +142,6 @@ func (lu *LikesUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := lu.mutation.CommentStr(); ok {
-		_spec.SetField(likes.FieldCommentStr, field.TypeString, value)
-	}
 	if lu.mutation.VideosCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -259,12 +250,6 @@ type LikesUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *LikesMutation
-}
-
-// SetCommentStr sets the "commentStr" field.
-func (luo *LikesUpdateOne) SetCommentStr(s string) *LikesUpdateOne {
-	luo.mutation.SetCommentStr(s)
-	return luo
 }
 
 // AddVideoIDs adds the "videos" edge to the Videos entity by IDs.
@@ -409,9 +394,6 @@ func (luo *LikesUpdateOne) sqlSave(ctx context.Context) (_node *Likes, err error
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := luo.mutation.CommentStr(); ok {
-		_spec.SetField(likes.FieldCommentStr, field.TypeString, value)
 	}
 	if luo.mutation.VideosCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"server04/ent/comments"
 	"server04/ent/usersec"
@@ -18,6 +19,12 @@ type CommentsCreate struct {
 	config
 	mutation *CommentsMutation
 	hooks    []Hook
+}
+
+// SetCommentStr sets the "commentStr" field.
+func (cc *CommentsCreate) SetCommentStr(s string) *CommentsCreate {
+	cc.mutation.SetCommentStr(s)
+	return cc
 }
 
 // AddVideoIdIDs adds the "videoId" edge to the Videos entity by IDs.
@@ -84,6 +91,9 @@ func (cc *CommentsCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (cc *CommentsCreate) check() error {
+	if _, ok := cc.mutation.CommentStr(); !ok {
+		return &ValidationError{Name: "commentStr", err: errors.New(`ent: missing required field "Comments.commentStr"`)}
+	}
 	return nil
 }
 
@@ -110,6 +120,10 @@ func (cc *CommentsCreate) createSpec() (*Comments, *sqlgraph.CreateSpec) {
 		_node = &Comments{config: cc.config}
 		_spec = sqlgraph.NewCreateSpec(comments.Table, sqlgraph.NewFieldSpec(comments.FieldID, field.TypeInt))
 	)
+	if value, ok := cc.mutation.CommentStr(); ok {
+		_spec.SetField(comments.FieldCommentStr, field.TypeString, value)
+		_node.CommentStr = value
+	}
 	if nodes := cc.mutation.VideoIdIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,

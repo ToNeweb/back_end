@@ -29,6 +29,12 @@ func (cu *CommentsUpdate) Where(ps ...predicate.Comments) *CommentsUpdate {
 	return cu
 }
 
+// SetCommentStr sets the "commentStr" field.
+func (cu *CommentsUpdate) SetCommentStr(s string) *CommentsUpdate {
+	cu.mutation.SetCommentStr(s)
+	return cu
+}
+
 // AddVideoIdIDs adds the "videoId" edge to the Videos entity by IDs.
 func (cu *CommentsUpdate) AddVideoIdIDs(ids ...int) *CommentsUpdate {
 	cu.mutation.AddVideoIdIDs(ids...)
@@ -142,6 +148,9 @@ func (cu *CommentsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := cu.mutation.CommentStr(); ok {
+		_spec.SetField(comments.FieldCommentStr, field.TypeString, value)
+	}
 	if cu.mutation.VideoIdCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -250,6 +259,12 @@ type CommentsUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *CommentsMutation
+}
+
+// SetCommentStr sets the "commentStr" field.
+func (cuo *CommentsUpdateOne) SetCommentStr(s string) *CommentsUpdateOne {
+	cuo.mutation.SetCommentStr(s)
+	return cuo
 }
 
 // AddVideoIdIDs adds the "videoId" edge to the Videos entity by IDs.
@@ -394,6 +409,9 @@ func (cuo *CommentsUpdateOne) sqlSave(ctx context.Context) (_node *Comments, err
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cuo.mutation.CommentStr(); ok {
+		_spec.SetField(comments.FieldCommentStr, field.TypeString, value)
 	}
 	if cuo.mutation.VideoIdCleared() {
 		edge := &sqlgraph.EdgeSpec{

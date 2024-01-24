@@ -84,6 +84,7 @@ func (r *UserOps) UserAddValidateCode(email string, validationCode int) {
 		panic(err)
 	}
 }
+
 func (r *UserOps) UserGetValidateCode(email string) int { /// should be deleted from redis?
 	value, err := r.redisClient.Get(r.ctx, email).Result()
 	if err != nil {

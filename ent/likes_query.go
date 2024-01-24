@@ -330,18 +330,6 @@ func (lq *LikesQuery) WithUser(opts ...func(*UserSecQuery)) *LikesQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
-//
-// Example:
-//
-//	var v []struct {
-//		CommentStr string `json:"commentStr,omitempty"`
-//		Count int `json:"count,omitempty"`
-//	}
-//
-//	client.Likes.Query().
-//		GroupBy(likes.FieldCommentStr).
-//		Aggregate(ent.Count()).
-//		Scan(ctx, &v)
 func (lq *LikesQuery) GroupBy(field string, fields ...string) *LikesGroupBy {
 	lq.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &LikesGroupBy{build: lq}
@@ -353,16 +341,6 @@ func (lq *LikesQuery) GroupBy(field string, fields ...string) *LikesGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
-//
-// Example:
-//
-//	var v []struct {
-//		CommentStr string `json:"commentStr,omitempty"`
-//	}
-//
-//	client.Likes.Query().
-//		Select(likes.FieldCommentStr).
-//		Scan(ctx, &v)
 func (lq *LikesQuery) Select(fields ...string) *LikesSelect {
 	lq.ctx.Fields = append(lq.ctx.Fields, fields...)
 	sbuild := &LikesSelect{LikesQuery: lq}

@@ -7,4 +7,5 @@ import (
 func RegisterRouter(r *mux.Router) {
 	registerVideoRouter(r)
 	registerUserRouter(r)
+	registerLikeRouter(r)
 }

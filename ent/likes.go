@@ -13,11 +13,9 @@ import (
 
 // Likes is the model entity for the Likes schema.
 type Likes struct {
-	config `json:"-"`
+	config
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// CommentStr holds the value of the "commentStr" field.
-	CommentStr string `json:"commentStr,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LikesQuery when eager-loading is set.
 	Edges        LikesEdges `json:"edges"`
@@ -60,8 +58,6 @@ func (*Likes) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case likes.FieldID:
 			values[i] = new(sql.NullInt64)
-		case likes.FieldCommentStr:
-			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -83,12 +79,6 @@ func (l *Likes) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			l.ID = int(value.Int64)
-		case likes.FieldCommentStr:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field commentStr", values[i])
-			} else if value.Valid {
-				l.CommentStr = value.String
-			}
 		default:
 			l.selectValues.Set(columns[i], values[i])
 		}
@@ -134,9 +124,7 @@ func (l *Likes) Unwrap() *Likes {
 func (l *Likes) String() string {
 	var builder strings.Builder
 	builder.WriteString("Likes(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", l.ID))
-	builder.WriteString("commentStr=")
-	builder.WriteString(l.CommentStr)
+	builder.WriteString(fmt.Sprintf("id=%v", l.ID))
 	builder.WriteByte(')')
 	return builder.String()
 }

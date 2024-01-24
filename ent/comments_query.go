@@ -330,6 +330,18 @@ func (cq *CommentsQuery) WithUserId(opts ...func(*UserSecQuery)) *CommentsQuery 
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CommentStr string `json:"commentStr,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Comments.Query().
+//		GroupBy(comments.FieldCommentStr).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (cq *CommentsQuery) GroupBy(field string, fields ...string) *CommentsGroupBy {
 	cq.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &CommentsGroupBy{build: cq}
@@ -341,6 +353,16 @@ func (cq *CommentsQuery) GroupBy(field string, fields ...string) *CommentsGroupB
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CommentStr string `json:"commentStr,omitempty"`
+//	}
+//
+//	client.Comments.Query().
+//		Select(comments.FieldCommentStr).
+//		Scan(ctx, &v)
 func (cq *CommentsQuery) Select(fields ...string) *CommentsSelect {
 	cq.ctx.Fields = append(cq.ctx.Fields, fields...)
 	sbuild := &CommentsSelect{CommentsQuery: cq}

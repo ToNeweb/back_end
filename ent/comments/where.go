@@ -54,6 +54,76 @@ func IDLTE(id int) predicate.Comments {
 	return predicate.Comments(sql.FieldLTE(FieldID, id))
 }
 
+// CommentStr applies equality check predicate on the "commentStr" field. It's identical to CommentStrEQ.
+func CommentStr(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldEQ(FieldCommentStr, v))
+}
+
+// CommentStrEQ applies the EQ predicate on the "commentStr" field.
+func CommentStrEQ(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldEQ(FieldCommentStr, v))
+}
+
+// CommentStrNEQ applies the NEQ predicate on the "commentStr" field.
+func CommentStrNEQ(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldNEQ(FieldCommentStr, v))
+}
+
+// CommentStrIn applies the In predicate on the "commentStr" field.
+func CommentStrIn(vs ...string) predicate.Comments {
+	return predicate.Comments(sql.FieldIn(FieldCommentStr, vs...))
+}
+
+// CommentStrNotIn applies the NotIn predicate on the "commentStr" field.
+func CommentStrNotIn(vs ...string) predicate.Comments {
+	return predicate.Comments(sql.FieldNotIn(FieldCommentStr, vs...))
+}
+
+// CommentStrGT applies the GT predicate on the "commentStr" field.
+func CommentStrGT(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldGT(FieldCommentStr, v))
+}
+
+// CommentStrGTE applies the GTE predicate on the "commentStr" field.
+func CommentStrGTE(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldGTE(FieldCommentStr, v))
+}
+
+// CommentStrLT applies the LT predicate on the "commentStr" field.
+func CommentStrLT(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldLT(FieldCommentStr, v))
+}
+
+// CommentStrLTE applies the LTE predicate on the "commentStr" field.
+func CommentStrLTE(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldLTE(FieldCommentStr, v))
+}
+
+// CommentStrContains applies the Contains predicate on the "commentStr" field.
+func CommentStrContains(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldContains(FieldCommentStr, v))
+}
+
+// CommentStrHasPrefix applies the HasPrefix predicate on the "commentStr" field.
+func CommentStrHasPrefix(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldHasPrefix(FieldCommentStr, v))
+}
+
+// CommentStrHasSuffix applies the HasSuffix predicate on the "commentStr" field.
+func CommentStrHasSuffix(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldHasSuffix(FieldCommentStr, v))
+}
+
+// CommentStrEqualFold applies the EqualFold predicate on the "commentStr" field.
+func CommentStrEqualFold(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldEqualFold(FieldCommentStr, v))
+}
+
+// CommentStrContainsFold applies the ContainsFold predicate on the "commentStr" field.
+func CommentStrContainsFold(v string) predicate.Comments {
+	return predicate.Comments(sql.FieldContainsFold(FieldCommentStr, v))
+}
+
 // HasVideoId applies the HasEdge predicate on the "videoId" edge.
 func HasVideoId() predicate.Comments {
 	return predicate.Comments(func(s *sql.Selector) {

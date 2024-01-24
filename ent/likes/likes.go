@@ -12,8 +12,6 @@ const (
 	Label = "likes"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldCommentStr holds the string denoting the commentstr field in the database.
-	FieldCommentStr = "comment_str"
 	// EdgeVideos holds the string denoting the videos edge name in mutations.
 	EdgeVideos = "videos"
 	// EdgeUser holds the string denoting the user edge name in mutations.
@@ -35,7 +33,6 @@ const (
 // Columns holds all SQL columns for likes fields.
 var Columns = []string{
 	FieldID,
-	FieldCommentStr,
 }
 
 var (
@@ -63,11 +60,6 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByCommentStr orders the results by the commentStr field.
-func ByCommentStr(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCommentStr, opts...).ToFunc()
 }
 
 // ByVideosCount orders the results by videos count.

@@ -3,7 +3,6 @@ package schema
 import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
-	"entgo.io/ent/schema/field"
 )
 
 // Likes holds the schema definition for the Likes entity.
@@ -13,9 +12,7 @@ type Likes struct {
 
 // Fields of the Likes.
 func (Likes) Fields() []ent.Field {
-	return []ent.Field{
-		field.String("commentStr"),
-	}
+	return nil
 }
 
 // Edges of the Likes.

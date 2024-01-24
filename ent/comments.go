@@ -13,9 +13,11 @@ import (
 
 // Comments is the model entity for the Comments schema.
 type Comments struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// CommentStr holds the value of the "commentStr" field.
+	CommentStr string `json:"commentStr,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CommentsQuery when eager-loading is set.
 	Edges        CommentsEdges `json:"edges"`
@@ -58,6 +60,8 @@ func (*Comments) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case comments.FieldID:
 			values[i] = new(sql.NullInt64)
+		case comments.FieldCommentStr:
+			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -79,6 +83,12 @@ func (c *Comments) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			c.ID = int(value.Int64)
+		case comments.FieldCommentStr:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field commentStr", values[i])
+			} else if value.Valid {
+				c.CommentStr = value.String
+			}
 		default:
 			c.selectValues.Set(columns[i], values[i])
 		}
@@ -124,7 +134,9 @@ func (c *Comments) Unwrap() *Comments {
 func (c *Comments) String() string {
 	var builder strings.Builder
 	builder.WriteString("Comments(")
-	builder.WriteString(fmt.Sprintf("id=%v", c.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", c.ID))
+	builder.WriteString("commentStr=")
+	builder.WriteString(c.CommentStr)
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -40,6 +40,7 @@ type CommentsMutation struct {
 	op             Op
 	typ            string
 	id             *int
+	commentStr     *string
 	clearedFields  map[string]struct{}
 	videoId        map[int]struct{}
 	removedvideoId map[int]struct{}
@@ -148,6 +149,42 @@ func (m *CommentsMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetCommentStr sets the "commentStr" field.
+func (m *CommentsMutation) SetCommentStr(s string) {
+	m.commentStr = &s
+}
+
+// CommentStr returns the value of the "commentStr" field in the mutation.
+func (m *CommentsMutation) CommentStr() (r string, exists bool) {
+	v := m.commentStr
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCommentStr returns the old "commentStr" field's value of the Comments entity.
+// If the Comments object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CommentsMutation) OldCommentStr(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCommentStr is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCommentStr requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCommentStr: %w", err)
+	}
+	return oldValue.CommentStr, nil
+}
+
+// ResetCommentStr resets all changes to the "commentStr" field.
+func (m *CommentsMutation) ResetCommentStr() {
+	m.commentStr = nil
 }
 
 // AddVideoIdIDs adds the "videoId" edge to the Videos entity by ids.
@@ -292,7 +329,10 @@ func (m *CommentsMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CommentsMutation) Fields() []string {
-	fields := make([]string, 0, 0)
+	fields := make([]string, 0, 1)
+	if m.commentStr != nil {
+		fields = append(fields, comments.FieldCommentStr)
+	}
 	return fields
 }
 
@@ -300,6 +340,10 @@ func (m *CommentsMutation) Fields() []string {
 // return value indicates that this field was not set, or was not defined in the
 // schema.
 func (m *CommentsMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case comments.FieldCommentStr:
+		return m.CommentStr()
+	}
 	return nil, false
 }
 
@@ -307,6 +351,10 @@ func (m *CommentsMutation) Field(name string) (ent.Value, bool) {
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *CommentsMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case comments.FieldCommentStr:
+		return m.OldCommentStr(ctx)
+	}
 	return nil, fmt.Errorf("unknown Comments field %s", name)
 }
 
@@ -315,6 +363,13 @@ func (m *CommentsMutation) OldField(ctx context.Context, name string) (ent.Value
 // type.
 func (m *CommentsMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case comments.FieldCommentStr:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCommentStr(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Comments field %s", name)
 }
@@ -336,6 +391,8 @@ func (m *CommentsMutation) AddedField(name string) (ent.Value, bool) {
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *CommentsMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Comments numeric field %s", name)
 }
 
@@ -361,6 +418,11 @@ func (m *CommentsMutation) ClearField(name string) error {
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
 func (m *CommentsMutation) ResetField(name string) error {
+	switch name {
+	case comments.FieldCommentStr:
+		m.ResetCommentStr()
+		return nil
+	}
 	return fmt.Errorf("unknown Comments field %s", name)
 }
 
@@ -480,7 +542,6 @@ type LikesMutation struct {
 	op            Op
 	typ           string
 	id            *int
-	commentStr    *string
 	clearedFields map[string]struct{}
 	videos        map[int]struct{}
 	removedvideos map[int]struct{}
@@ -589,42 +650,6 @@ func (m *LikesMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetCommentStr sets the "commentStr" field.
-func (m *LikesMutation) SetCommentStr(s string) {
-	m.commentStr = &s
-}
-
-// CommentStr returns the value of the "commentStr" field in the mutation.
-func (m *LikesMutation) CommentStr() (r string, exists bool) {
-	v := m.commentStr
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCommentStr returns the old "commentStr" field's value of the Likes entity.
-// If the Likes object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LikesMutation) OldCommentStr(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCommentStr is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCommentStr requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCommentStr: %w", err)
-	}
-	return oldValue.CommentStr, nil
-}
-
-// ResetCommentStr resets all changes to the "commentStr" field.
-func (m *LikesMutation) ResetCommentStr() {
-	m.commentStr = nil
 }
 
 // AddVideoIDs adds the "videos" edge to the Videos entity by ids.
@@ -769,10 +794,7 @@ func (m *LikesMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LikesMutation) Fields() []string {
-	fields := make([]string, 0, 1)
-	if m.commentStr != nil {
-		fields = append(fields, likes.FieldCommentStr)
-	}
+	fields := make([]string, 0, 0)
 	return fields
 }
 
@@ -780,10 +802,6 @@ func (m *LikesMutation) Fields() []string {
 // return value indicates that this field was not set, or was not defined in the
 // schema.
 func (m *LikesMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case likes.FieldCommentStr:
-		return m.CommentStr()
-	}
 	return nil, false
 }
 
@@ -791,10 +809,6 @@ func (m *LikesMutation) Field(name string) (ent.Value, bool) {
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *LikesMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case likes.FieldCommentStr:
-		return m.OldCommentStr(ctx)
-	}
 	return nil, fmt.Errorf("unknown Likes field %s", name)
 }
 
@@ -803,13 +817,6 @@ func (m *LikesMutation) OldField(ctx context.Context, name string) (ent.Value, e
 // type.
 func (m *LikesMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case likes.FieldCommentStr:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCommentStr(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Likes field %s", name)
 }
@@ -831,8 +838,6 @@ func (m *LikesMutation) AddedField(name string) (ent.Value, bool) {
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *LikesMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	}
 	return fmt.Errorf("unknown Likes numeric field %s", name)
 }
 
@@ -858,11 +863,6 @@ func (m *LikesMutation) ClearField(name string) error {
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
 func (m *LikesMutation) ResetField(name string) error {
-	switch name {
-	case likes.FieldCommentStr:
-		m.ResetCommentStr()
-		return nil
-	}
 	return fmt.Errorf("unknown Likes field %s", name)
 }
 

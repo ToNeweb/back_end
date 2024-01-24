@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"server04/ent/likes"
 	"server04/ent/usersec"
@@ -19,12 +18,6 @@ type LikesCreate struct {
 	config
 	mutation *LikesMutation
 	hooks    []Hook
-}
-
-// SetCommentStr sets the "commentStr" field.
-func (lc *LikesCreate) SetCommentStr(s string) *LikesCreate {
-	lc.mutation.SetCommentStr(s)
-	return lc
 }
 
 // AddVideoIDs adds the "videos" edge to the Videos entity by IDs.
@@ -91,9 +84,6 @@ func (lc *LikesCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (lc *LikesCreate) check() error {
-	if _, ok := lc.mutation.CommentStr(); !ok {
-		return &ValidationError{Name: "commentStr", err: errors.New(`ent: missing required field "Likes.commentStr"`)}
-	}
 	return nil
 }
 
@@ -120,10 +110,6 @@ func (lc *LikesCreate) createSpec() (*Likes, *sqlgraph.CreateSpec) {
 		_node = &Likes{config: lc.config}
 		_spec = sqlgraph.NewCreateSpec(likes.Table, sqlgraph.NewFieldSpec(likes.FieldID, field.TypeInt))
 	)
-	if value, ok := lc.mutation.CommentStr(); ok {
-		_spec.SetField(likes.FieldCommentStr, field.TypeString, value)
-		_node.CommentStr = value
-	}
 	if nodes := lc.mutation.VideosIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
