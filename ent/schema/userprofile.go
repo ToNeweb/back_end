@@ -22,6 +22,6 @@ func (UserProfile) Fields() []ent.Field {
 // Edges of the UserProfile.
 func (UserProfile) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("UserSecure", UserSec.Type),
+		edge.To("UserSecure", UserSec.Type).Unique(),
 	}
 }

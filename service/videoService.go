@@ -84,7 +84,10 @@ func (r *VideosOps) VideoGetSearch(searchTitelString string) ([]*ent.Videos, err
 }
 
 func (r *VideosOps) AddVideoLikeIfVideoDoesNotHaveLikeFromUser(userId int, videoId int) bool {
-	video, _ := r.client.Videos.Get(r.ctx, videoId)
+	video, err := r.client.Videos.Get(r.ctx, videoId)
+	if err != nil {
+		return false
+	}
 	yes, err := r.client.Videos.QueryLikeId(video).QueryUser().Where(usersec.ID(userId)).Count(r.ctx)
 	log.Println(yes, err)
 	if yes > 0 {
