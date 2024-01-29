@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"server04/service"
@@ -27,7 +26,7 @@ func LikeGetController(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	videoId, _ := strconv.Atoi(vars["id"])
-	fmt.Println(videoId)
+	//fmt.Println(videoId)
 	videos, _ := service.NewvideosOps(r.Context()).VideoGetByID(videoId)
 
 	utils.Return(w, true, http.StatusOK, nil, videos.LikeNum)
