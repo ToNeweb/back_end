@@ -44,6 +44,7 @@ func (r *VideosOps) VideoCreate(newVideo ent.Videos, userID int) (*ent.Videos, e
 func (r *VideosOps) VideoGetByID(id int) (*ent.Videos, error) {
 
 	user, err := r.client.Videos.Get(r.ctx, id)
+
 	if err != nil {
 		return nil, err
 	}

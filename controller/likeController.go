@@ -1,11 +1,14 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"server04/service"
 	"server04/utils"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func LikePutController(w http.ResponseWriter, r *http.Request) {
@@ -21,11 +24,11 @@ func LikePutController(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func LikeGetController(w http.ResponseWriter, r *http.Request) {
-	v := r.URL.Query()
+	vars := mux.Vars(r)
 
-	titleSearch := v["title"][0]
+	videoId, _ := strconv.Atoi(vars["id"])
+	fmt.Println(videoId)
+	videos, _ := service.NewvideosOps(r.Context()).VideoGetByID(videoId)
 
-	videos, _ := service.NewvideosOps(r.Context()).VideoGetSearch(titleSearch)
-
-	utils.Return(w, true, http.StatusOK, nil, videos)
+	utils.Return(w, true, http.StatusOK, nil, videos.LikeNum)
 }
