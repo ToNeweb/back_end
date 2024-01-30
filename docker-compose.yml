@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  postgres:
+    image: hub.hamdocker.ir/library/postgres:12-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: videosharing2
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: hub.hamdocker.ir/library/redis:6.2
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  app:
+    build: .
+    ports:
+      - "8019:8019"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - REDIS_ADDRESS=redis:6379
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      # - DB_USER=postgres
+      # - DB_PASSWORD=postgres
+      - DB_DATABASE=videosharing2
+
+volumes:
+  postgres_data:
+  redis_data:
